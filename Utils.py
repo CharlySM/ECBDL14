@@ -1,4 +1,5 @@
 from pyspark.sql.functions import struct, rand, col, lit
+from pyspark.sql.types import FloatType, DecimalType
 
 
 def balancearDF(df):

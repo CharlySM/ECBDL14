@@ -1,7 +1,6 @@
 from pyspark import SQLContext
 from pyspark.ml.feature import StringIndexer
 from pyspark.sql import SparkSession
-from functools import reduce
 
 from pyspark.sql.functions import col, lit, when
 
@@ -33,16 +32,15 @@ print("Leer fichero")
 df = spark.read.option("inferSchema", True) \
 .option("header",False) \
 .csv('hdfs://atlas:9000/user/datasets/ecbdl14/ECBDL14.dat')
-df = df.toDF(*columnsNew)
-df.cache()
+df = df.toDF(*columnsNew).cache()
+
 columns = [c for c in df.columns if(c!="class")]
 
 colsString = [field.name for field in df.schema.fields if((field.jsonValue()["type"] == "string") and (field.name!="class"))]
 
 print(colsString)
 print("Indexer string sobre las columnas")
-dfIndexed=indexerStringColumns(df,colsString)
-dfIndexed.cache()
+dfIndexed=indexerStringColumns(df,colsString).cache()
 
 print("Calcular maximos y minimos")
 listMax=["max(`"+c+"`) as `"+c+"`" for c in columns]
@@ -54,8 +52,8 @@ print("Normalizar columnas")
 dictCols = dict((c, col(c)-lit(min[c])/lit(max[c])-lit(min[c])) for c in columns)
 dfNormalize = dfIndexed.withColumns(dictCols) \
     .withColumn("class", when(col("class")==lit("negative"), lit(0)).otherwise(lit(1)))
-
+dfNormalize.show(truncate=False)
 print("Guardar dataset normalizado")
-dfNormalize.write.parquet("hdfs://atlas:9000/user/carsan/proteinasNormalized.parquet")
-
+#dfNormalize.write.parquet("hdfs://atlas:9000/user/carsan/proteinasNormalized.parquet")
+dfNormalize.write.csv("hdfs://atlas:9000/user/carsan/proteinasNormalized.csv")
 

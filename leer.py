@@ -1,3 +1,5 @@
+import subprocess
+
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.sql import SparkSession
 from pyspark import SparkFiles, SQLContext
@@ -35,7 +37,9 @@ def parse(l):
 
 rdd= df.rdd.map(lambda row: LabeledPoint(row['label'], row['features'].toArray()))
 print(type(rdd))
-fcnn_mr_model = jvm.org.apache.spark.mllib.feature.RMHC_MR(rdd, 0.15, 5, 3, 172134)
+#fcnn_mr_model = jvm.org.apache.spark.mllib.feature.RMHC_MR(rdd, 0.15, 5, 3, 172134)
+subprocess.call(["/opt/spark-3.5.1/bin/spark-submit" "--class org.apache.spark.mllib.preprocessing.Main" "ECBDL14_Preprocessing-1.1.jar RMHC_MR", rdd],
+                stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
 #FCNN_MR(trainingData, k)
 
 #fcnn_mr = fcnn_mr_model.runPR()
