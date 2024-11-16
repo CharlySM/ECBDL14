@@ -81,7 +81,7 @@ dictMaxMinW = dict((c, col(c).withField("max", when(col(c + ".res") > lit(corte)
     .otherwise(col(c + ".min"))).withField("weight", randomNumber(col(c + ".min"), col(c + ".max")))
     .withField("res", col(c + ".weight") * col(c + ".value"))) for c in columns)
 
-print("Actualizar pesos")
+print("Actualizar pesos de las columnas")
 
 import time
 start_time = time.time()
